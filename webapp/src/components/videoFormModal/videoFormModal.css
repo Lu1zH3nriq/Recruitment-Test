@@ -1,0 +1,82 @@
+.video-modal .modal-dialog {
+  max-width: 800px;
+  width: 95vw;
+  margin: 2rem auto;
+}
+
+.video-modal-content {
+  border-radius: 24px;
+  background: linear-gradient(135deg, #f8fafc 60%, #e3e8ee 100%);
+  border: none;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.25);
+  padding: 0.5rem 0;
+}
+
+.video-modal-header {
+  border-bottom: none;
+  background: linear-gradient(90deg, #61dafb 0%, #007bff 100%);
+  color: #fff;
+  border-radius: 24px 24px 0 0;
+  text-align: center;
+  font-weight: bold;
+  font-size: 2rem;
+  letter-spacing: 1px;
+  padding: 2rem 1.5rem 1rem 1.5rem;
+}
+
+.video-modal-body {
+  padding: 2rem 3rem 1rem 3rem;
+}
+
+.video-label {
+  font-weight: 500;
+  color: #007bff;
+  font-size: 1.1rem;
+}
+
+.video-input {
+  border-radius: 12px;
+  border: 1px solid #b0b0b0;
+  font-size: 1.1rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.2rem;
+  transition: border-color 0.2s;
+  background: #fafdff;
+}
+
+.video-input:focus {
+  border-color: #61dafb;
+  box-shadow: 0 0 0 2px #61dafb33;
+}
+
+.video-modal-footer {
+  border-top: none;
+  justify-content: center;
+  padding-bottom: 2rem;
+}
+
+.video-btn-continue {
+  background: linear-gradient(90deg, #61dafb 0%, #007bff 100%);
+  border: none;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 0.7rem 2.5rem;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 2px 8px #007bff22;
+}
+
+.video-btn-continue:hover {
+  background: linear-gradient(90deg, #007bff 0%, #61dafb 100%);
+  transform: translateY(-2px) scale(1.03);
+}
+
+@media (max-width: 600px) {
+  .video-modal-body {
+    padding: 1rem 0.5rem 0.5rem 0.5rem;
+  }
+  .video-modal-header {
+    font-size: 1.2rem;
+    padding: 1.2rem 0.5rem 0.7rem 0.5rem;
+  }
+}

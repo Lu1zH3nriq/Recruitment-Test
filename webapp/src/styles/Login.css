@@ -1,0 +1,114 @@
+.login-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to bottom, #46629a 0%, #1e1e1e 100%);
+}
+
+.login-card {
+  width: 100%;
+  max-width: 370px;
+  border-radius: 24px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  padding: 2.5rem 2rem 2rem 2rem;
+  background: #fff;
+  border: none;
+}
+
+.login-card h2 {
+  font-weight: bold;
+  font-size: 2rem;
+  letter-spacing: 1px;
+  color: #007bff;
+  margin-bottom: 2rem;
+}
+
+.login-card .form-label,
+.login-card label {
+  font-weight: 500;
+  color: #007bff;
+  font-size: 1.1rem;
+}
+
+.login-card .form-control,
+.login-card input {
+  border-radius: 12px;
+  border: 1px solid #b0b0b0;
+  font-size: 1.1rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.2rem;
+  transition: border-color 0.2s;
+  background: #fafdff;
+}
+
+.login-card .form-control:focus,
+.login-card input:focus {
+  border-color: #61dafb;
+  box-shadow: 0 0 0 2px #61dafb33;
+}
+
+.login-card .btn-primary {
+  background: linear-gradient(90deg, #61dafb 0%, #007bff 100%);
+  border: none;
+  border-radius: 12px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 0.7rem 2.5rem;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 2px 8px #007bff22;
+}
+
+.login-card .btn-primary:hover {
+  background: linear-gradient(90deg, #007bff 0%, #61dafb 100%);
+  transform: translateY(-2px) scale(1.03);
+}
+
+@media (max-width: 600px) {
+  .login-card {
+    padding: 1.2rem 0.5rem 1rem 0.5rem;
+    max-width: 95vw;
+  }
+  .login-card h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1.2rem;
+  }
+}
+
+/* Use as classes já existentes dos modais para manter o padrão visual */
+.video-modal .modal-dialog {
+  max-width: 400px;
+  width: 95vw;
+}
+
+.video-modal-header {
+  background: linear-gradient(90deg, #61dafb 0%, #007bff 100%);
+  color: #fff;
+  border-radius: 24px 24px 0 0;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+  padding: 1.5rem 1rem 1rem 1rem;
+}
+
+.video-modal-body {
+  padding: 2rem 2rem 1rem 2rem;
+}
+
+.video-btn-continue {
+  background: linear-gradient(90deg, #61dafb 0%, #007bff 100%);
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  padding: 0.7rem 2.5rem;
+  margin-top: 1rem;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 2px 8px #007bff22;
+}
+
+.video-btn-continue:hover {
+  background: linear-gradient(90deg, #007bff 0%, #61dafb 100%);
+  transform: translateY(-2px) scale(1.03);
+}

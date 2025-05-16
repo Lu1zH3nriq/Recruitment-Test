@@ -1,0 +1,114 @@
+.custom-modal .modal-content {
+  border-radius: 20px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  background: linear-gradient(135deg, #f8fafc 60%, #e3e8ee 100%);
+  border: none;
+  padding: 0.5rem 0;
+}
+
+.custom-modal .modal-header {
+  border-bottom: none;
+  background: linear-gradient(90deg, #61dafb 0%, #007bff 100%);
+  color: #fff;
+  border-radius: 20px 20px 0 0;
+  text-align: center;
+  font-weight: bold;
+  font-size: 1.5rem;
+  letter-spacing: 1px;
+}
+
+.custom-modal .modal-body {
+  padding: 2rem 2.5rem 1rem 2.5rem;
+}
+
+.custom-modal .form-label {
+  font-weight: 500;
+  color: #007bff;
+}
+
+.custom-modal .form-control {
+  border-radius: 10px;
+  border: 1px solid #b0b0b0;
+  font-size: 1.1rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  transition: border-color 0.2s;
+}
+
+.custom-modal .form-control:focus {
+  border-color: #61dafb;
+  box-shadow: 0 0 0 2px #61dafb33;
+}
+
+.custom-modal .modal-footer {
+  border-top: none;
+  justify-content: center;
+  padding-bottom: 2rem;
+}
+
+.custom-modal .btn-primary {
+  background: linear-gradient(90deg, #61dafb 0%, #007bff 100%);
+  border: none;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  padding: 0.7rem 2.5rem;
+  transition: background 0.2s, transform 0.1s;
+  box-shadow: 0 2px 8px #007bff22;
+}
+
+.custom-modal .btn-primary:hover {
+  background: linear-gradient(90deg, #007bff 0%, #61dafb 100%);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.btn-action-success {
+  background: linear-gradient(90deg, #43e97b 0%, #38f9d7 100%);
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  padding: 0.7rem 2.5rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  margin-top: 1rem;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn-action-success:hover {
+  background: linear-gradient(90deg, #38f9d7 0%, #43e97b 100%);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.btn-action-error {
+  background: linear-gradient(90deg, #ff5858 0%, #f09819 100%);
+  border: none;
+  color: #fff;
+  font-weight: bold;
+  padding: 0.7rem 2.5rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  margin-top: 1rem;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn-action-error:hover {
+  background: linear-gradient(90deg, #f09819 0%, #ff5858 100%);
+  transform: translateY(-2px) scale(1.03);
+}
+
+.btn-action-warning {
+  background: linear-gradient(90deg, #ffe259 0%, #ffa751 100%);
+  border: none;
+  color: #333;
+  font-weight: bold;
+  padding: 0.7rem 2.5rem;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  margin-top: 1rem;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.btn-action-warning:hover {
+  background: linear-gradient(90deg, #ffa751 0%, #ffe259 100%);
+  transform: translateY(-2px) scale(1.03);
+}
