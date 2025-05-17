@@ -12,10 +12,12 @@ app.use(express.json());
 
 const userRoutes = require("./routes/user/routes");
 const videoRoutes = require("./routes/video/routes");
+const planRoutes = require("./routes/plans/routes");
 
 
 app.use("/user", userRoutes);
 app.use("/video", videoRoutes);
+app.use("/plans", planRoutes);
 
 
 app.use(express.static(path.join(__dirname, "..", "webapp", "build")));

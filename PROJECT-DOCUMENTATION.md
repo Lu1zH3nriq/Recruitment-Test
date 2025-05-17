@@ -2,14 +2,13 @@
 
 ## Descrição
 
-Este projeto é composto por um backend Node.js (Express) e um frontend React. O backend serve a aplicação React já compilada, tornando possível acessar a interface pelo navegador via rota `/`. O Cosmos DB está preparado, mas **não está sendo utilizado no momento**.
+Este projeto é composto por um backend Node.js (Express) e um frontend React. O backend serve a aplicação React já compilada, tornando possível acessar a interface pelo navegador via rota `/`.
 
 ---
 
 ## Estrutura do Projeto
 
-Recruitment-Test/ │ ├── server/ # Backend Node.js/Express │ └── app.js │ ├── webapp/ # Frontend React │ ├── src/ │ └── build/ # Gerado após o build do React │ ├── package.json └── PROJECT-DOCUMENTATION.md
-
+![alt text](image.png)
 
 ---
 

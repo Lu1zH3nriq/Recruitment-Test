@@ -43,7 +43,7 @@ router.post("/cadastro", async (req, res) => {
 
         const { resource } = await container.items.create(userBody);
 
-        
+
         await mg.messages.create(process.env.MAILGUN_DOMAIN || 'resposta20.resultadoleitura.online', {
             from: "Gerador de Roteiros <postmaster@resposta20.resultadoleitura.online>",
             to: [email],
@@ -71,7 +71,6 @@ router.post("/login", async (req, res) => {
     }
 
     try {
-        // Busca usuário pelo e-mail
         const querySpec = {
             query: "SELECT * FROM c WHERE c.email = @email",
             parameters: [{ name: "@email", value: email }]
@@ -83,22 +82,19 @@ router.post("/login", async (req, res) => {
         }
 
         const user = resources[0];
-
-        // Verifica se o hash da senha existe
         if (!user.pass) {
             return res.status(401).json({ message: "Senha não cadastrada para este usuário." });
         }
 
-        // Compara a senha informada com o hash salvo
         const senhaCorreta = await bcrypt.compare(senha, user.pass);
         if (!senhaCorreta) {
             return res.status(401).json({ message: "Senha incorreta." });
         }
 
-        // Login bem-sucedido
         return res.status(200).json({
             message: "Login realizado com sucesso!",
             user: {
+                id: user.id,
                 nome: user.nome,
                 email: user.email,
                 licensed: user.licensed,
@@ -109,6 +105,33 @@ router.post("/login", async (req, res) => {
     } catch (error) {
         console.error("Erro ao realizar login:", error.message);
         return res.status(500).json({ message: "Erro ao realizar login." });
+    }
+});
+
+router.get("/getUser", async (req, res) => {
+    const { nome, email } = req.query;
+
+    try {
+        const querySpec = {
+            query: "SELECT * FROM c WHERE c.nome = @nome AND c.email = @email",
+            parameters: [
+                { name: "@nome", value: nome },
+                { name: "@email", value: email }
+            ]
+        };
+        const { resources } = await container.items.query(querySpec).fetchAll();
+
+        if (resources.length === 0) {
+            return res.status(404).json({ message: "Usuário não encontrado." });
+        }
+
+        return res.status(200).json({
+            message: "Usuário encontrado.",
+            user: resources[0]
+        });
+    } catch (error) {
+        console.error("Erro ao buscar usuário:", error.message);
+        return res.status(500).json({ message: "Erro ao buscar usuário." });
     }
 });
 

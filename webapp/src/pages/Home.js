@@ -31,6 +31,16 @@ function Home() {
             >
               Criar Ideia de Vídeo
             </Button>
+
+            <Button
+              className="venda-btn"
+              onClick={() => {
+                window.location.href = '/login';
+              }}
+            >
+              Login
+            </Button>
+
           </Col>
         </Row>
       </Container>

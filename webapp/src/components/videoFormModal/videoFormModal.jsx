@@ -15,8 +15,8 @@ import { useNavigate } from 'react-router-dom';
 import './videoFormModal.css';
 import UserContext from '../../context/userContext.js';
 
-function VideoFormModal({ isOpen, toggle, onContinue }) {
-    const APIURL = process.env.API_URL || 'http://localhost:3001';
+function VideoFormModal({ isOpen, toggle, selectPlan }) {
+    const APIURL = process.env.API_URL || process.env.REACT_APP_API_URL;
     const [form, setForm] = useState({
         tema: '',
         formato: '',
@@ -47,37 +47,46 @@ function VideoFormModal({ isOpen, toggle, onContinue }) {
         setSuccessMsg('');
         setErrorMsg('');
 
-        
+        if (userData.licensed.licenssType === "free" && userData.licensed.credits <= 0) {
+            setLoading(false);
+            resetAll();
+            selectPlan();
+            return;
+        }
+
+        else if (userData.licensed.credits <= 0) {
+            setErrorMsg('Você não possui mais créditos disponíveis.');
+            setLoading(false);
+            return;
+        }
+
         const novaIdeia = {
             tema: form.tema,
             formato: form.formato,
             tempo: Number(form.tempo),
-            ideias: form.ideias
+            ideias: form.ideias,
+            roteiro: '',
+            date: new Date().toISOString()
         };
-
-        
-        setUserData({
-            ...userData,
-            IdeiasVideos: [novaIdeia]
-        });
 
         try {
             const response = await axios.post(`${APIURL}/video/ideiaDeVideo`, {
                 nome: userData?.nome || '',
                 email: userData?.email || '',
-                IdeiasVideos: [novaIdeia]
+                IdeiaVideos: novaIdeia
             });
             if (
                 response.status === 200
             ) {
                 setSuccessMsg('Parabéns. Seu roteiro está sendo gerado. Acompanhe pelo seu e-mail.');
             } else {
-                setErrorMsg('Erro ao registrar ideia. Tente novamente.');
+                setErrorMsg(response.data.message || 'Erro ao enviar a ideia de vídeo.');
             }
-            setUserData(null);
         } catch (err) {
             setErrorMsg('Erro ao conectar com o servidor.');
         }
+
+
         setLoading(false);
     };
 

@@ -18,11 +18,12 @@
   padding: 1rem 1.5rem;
   box-shadow: 0 2px 8px #2221;
   margin-bottom: 2rem;
+  margin-top: 2rem;
 }
 
 .roteiros-card {
   border-radius: 18px;
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
   overflow: hidden;
   border: none;
 }
@@ -72,7 +73,7 @@
   justify-content: center;
   gap: 0.5rem;
   margin-top: 1rem;
-  margin-left: 0;
+  margin-left: 20px;
 }
 
 .roteiros-btn-novo-roteiro {
@@ -108,5 +109,85 @@
     min-width: 120px;
     font-size: 1rem;
     padding: 0.6rem 1.2rem;
+  }
+}
+
+.roteiro-expand {
+  background: #f8f9fa;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px #2221;
+  padding: 1.2rem 1rem;
+  margin-top: 1rem;
+  animation: fadeIn 0.3s;
+}
+
+.roteiro-expand-inner {
+  width: 100%;
+  word-break: break-word;
+}
+
+.roteiro-titulo {
+  font-size: 1.1rem;
+  color: #222;
+}
+
+.roteiro-metade {
+  font-size: 1.05rem;
+  color: #222;
+}
+
+.roteiro-blur {
+  filter: blur(6px);
+  background: linear-gradient(90deg, #fff 60%, #f5f5f5 100%);
+  border-radius: 6px;
+  padding: 0.5em 0.7em;
+  display: block;
+  margin: 12px 0;
+  min-height: 2.5em;
+}
+
+.roteiro-upgrade-box {
+  margin-top: 1.2em;
+  text-align: center;
+}
+
+.roteiro-upgrade-btn {
+  font-size: 1rem !important;
+  font-weight: bold !important;
+  border-radius: 10px !important;
+  margin-top: 10px !important;
+  padding: 0.7rem 1.5rem !important;
+}
+
+.roteiro-upgrade-msg {
+  font-size: 0.95rem;
+  color: #555;
+  margin-top: 0.5em;
+}
+
+.roteiro-completo {
+  font-size: 1.05rem;
+  color: #222;
+}
+
+@media (max-width: 600px) {
+  .roteiro-expand {
+    padding: 0.7rem 0.4rem;
+  }
+  .roteiro-titulo,
+  .roteiro-completo,
+  .roteiro-metade {
+    font-size: 0.98rem;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

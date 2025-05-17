@@ -3,9 +3,11 @@ import { Button, Form, FormGroup, Label, Input, Card, CardBody, Modal, ModalHead
 import '../styles/Login.css';
 import axios from 'axios';
 import UserContext from '../context/userContext.js';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
-  const APIURL = process.env.API_URL || 'http://localhost:3001';
+  const navigate = useNavigate();
+  const APIURL = process.env.API_URL || process.env.REACT_APP_API_URL;
   const [form, setForm] = useState({ usuario: '', senha: '' });
   const { setUserData } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
@@ -27,12 +29,11 @@ function Login() {
         email: form.usuario,
         senha: form.senha
       });
-
-      if (response.status === 200) {
-        const userData = response.data;
-        setUserData(userData);
-        window.location.href = '/roteiros';
-      }
+      console.log('Login bem-sucedido:', response.data);
+      const userData = response.data?.user;
+      await setUserData(userData);
+      sessionStorage.setItem('userData', JSON.stringify(userData));
+      navigate('/roteiros');
     } catch (error) {
       setErrorMsg(
         error.response?.data?.message ||
@@ -90,7 +91,7 @@ function Login() {
         </CardBody>
       </Card>
 
-      
+
       <Modal isOpen={showErrorModal} toggle={handleCloseError} centered className="video-modal">
         <ModalHeader toggle={handleCloseError} className="video-modal-header">
           Erro no Login

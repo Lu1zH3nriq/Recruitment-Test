@@ -17,7 +17,7 @@ import './UserFormModal.css';
 function UserFormModal({ isOpen, toggle, onSubmit, onContinue }) {
 
   const { setUserData } = useContext(UserContext);
-  const APIURL = process.env.API_URL || 'http://localhost:3001';
+  const APIURL = process.env.API_URL || process.env.REACT_APP_API_URL;
 
   const [form, setForm] = useState({ nome: '', email: '' });
   const [loading, setLoading] = useState(false);
