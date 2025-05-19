@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import {
     Button,
     Modal,
@@ -27,9 +27,7 @@ function VideoFormModal({ isOpen, toggle, selectPlan }) {
     const [successMsg, setSuccessMsg] = useState('');
     const [errorMsg, setErrorMsg] = useState('');
     const navigate = useNavigate();
-
-    const { userData, setUserData } = useContext(UserContext);
-
+    const { userData, isLoggedIn } = useContext(UserContext);
     const handleChange = (e) => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
@@ -41,7 +39,7 @@ function VideoFormModal({ isOpen, toggle, selectPlan }) {
         setLoading(false);
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
         setLoading(true);
         setSuccessMsg('');
@@ -54,7 +52,7 @@ function VideoFormModal({ isOpen, toggle, selectPlan }) {
             return;
         }
 
-        else if (userData.licensed.credits <= 0) {
+        if (userData.licensed.credits <= 0) {
             setErrorMsg('Você não possui mais créditos disponíveis.');
             setLoading(false);
             return;
@@ -69,31 +67,36 @@ function VideoFormModal({ isOpen, toggle, selectPlan }) {
             date: new Date().toISOString()
         };
 
-        try {
-            const response = await axios.post(`${APIURL}/video/ideiaDeVideo`, {
+
+        if (isLoggedIn === false) {
+            setSuccessMsg('Parabéns. Seu roteiro está sendo gerado. Aguarde e acompanhe pelo seu e-mail.');
+            setLoading(false);
+
+            axios.post(`${APIURL}/video/ideiaDeVideo`, {
                 nome: userData?.nome || '',
                 email: userData?.email || '',
                 IdeiaVideos: novaIdeia
-            });
-            if (
-                response.status === 200
-            ) {
-                setSuccessMsg('Parabéns. Seu roteiro está sendo gerado. Acompanhe pelo seu e-mail.');
-            } else {
-                setErrorMsg(response.data.message || 'Erro ao enviar a ideia de vídeo.');
-            }
-        } catch (err) {
-            setErrorMsg('Erro ao conectar com o servidor.');
+            }).catch(() => { });
+            return;
         }
 
-
+        resetAll();
+        toggle();
+        axios.post(`${APIURL}/video/ideiaDeVideo`, {
+            nome: userData?.nome || '',
+            email: userData?.email || '',
+            IdeiaVideos: novaIdeia
+        }).catch(() => { });
         setLoading(false);
     };
 
     const handleContinue = () => {
         resetAll();
         toggle();
-        navigate('/login');
+
+        if (isLoggedIn === false || sessionStorage.getItem('token') === null) {
+            navigate('/login');
+        }
     };
 
     const handleCloseError = () => {

@@ -1,0 +1,102 @@
+.payment-confirmation-modal-content {
+    border-radius: 24px !important;
+    background: linear-gradient(120deg, #fffbe6 0%, #f0f8ff 100%);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    position: relative;
+    overflow: hidden;
+    min-height: 350px;
+}
+
+.payment-confirmation-modal-body {
+    padding: 2.5rem 2rem 2rem 2rem;
+    position: relative;
+    min-height: 350px;
+}
+
+.payment-confirmation-content {
+    z-index: 2;
+    position: relative;
+}
+
+.payment-title {
+    font-weight: bold;
+    color: #22bb33;
+    letter-spacing: 1px;
+}
+
+.payment-message {
+    font-size: 1.2rem;
+    color: #444;
+}
+
+.vip-badge {
+    background: #ffc107;
+    color: #fff;
+    font-weight: bold;
+    padding: 2px 10px;
+    border-radius: 12px;
+    margin-left: 4px;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+}
+
+.plan-type {
+    color: #007bff;
+    font-weight: bold;
+    text-transform: capitalize;
+}
+
+.payment-checkmark {
+    margin-bottom: 1rem;
+    animation: pop 0.7s cubic-bezier(.68,-0.55,.27,1.55);
+}
+
+@keyframes pop {
+    0% { transform: scale(0.7);}
+    80% { transform: scale(1.15);}
+    100% { transform: scale(1);}
+}
+
+/* Balões animados */
+.balloons-left, .balloons-right {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 80px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.balloons-left {
+    left: 0;
+}
+
+.balloons-right {
+    right: 0;
+}
+
+.balloon {
+    position: absolute;
+    bottom: -60px;
+    width: 36px;
+    height: 48px;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    opacity: 0.85;
+    animation: balloonUp 3.5s linear infinite;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    border: 2px solid #fff;
+}
+
+@keyframes balloonUp {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 0.8;
+    }
+    60% {
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-320px) scale(1.08);
+        opacity: 0;
+    }
+}

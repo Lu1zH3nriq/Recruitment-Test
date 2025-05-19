@@ -191,3 +191,35 @@
     transform: translateY(0);
   }
 }
+
+/* Exemplo básico para markdown-body */
+.markdown-body {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: #222;
+  background: none;
+  padding: 0;
+}
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3 {
+  margin-top: 1.2em;
+  margin-bottom: 0.6em;
+  font-weight: bold;
+}
+.markdown-body code {
+  background: #f5f5f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.98em;
+}
+.markdown-body pre {
+  background: #f5f5f5;
+  padding: 1em;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+.markdown-body ul,
+.markdown-body ol {
+  margin-left: 1.5em;
+}

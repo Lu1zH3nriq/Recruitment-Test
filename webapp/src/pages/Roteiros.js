@@ -6,52 +6,105 @@ import {
     Card,
     CardBody,
     Button,
-    Progress
+    Progress,
+    Badge
 } from 'reactstrap';
 import '../styles/Roteiros.css';
 import UserContext from '../context/userContext';
 import VideoFormModal from '../components/videoFormModal/videoFormModal';
 import PlanModal from '../components/planModal/PlanModal';
+import PaymentConfirmationModal from '../components/planModal/PaymentConfirmationModal';
+import RegenerateModal from '../components/loadingRoteiroModal/loadingRoteiroModal';
 import axios from 'axios';
+import ReactMarkdown from 'react-markdown';
 
 function Roteiros() {
-
     const API_URL = process.env.API_URL || process.env.REACT_APP_API_URL;
-
     const { userData, setUserData } = useContext(UserContext);
     const ideiasVideos = userData?.IdeiasVideos || [];
-
     const [videoModalOpen, setVideoModalOpen] = useState(false);
     const [planModalOpen, setPlanModalOpen] = useState(false);
-    const [temposRestantes, setTemposRestantes] = useState(
-        ideiasVideos.map((video) =>
-            typeof video.segundosRestantes === 'number'
-                ? video.segundosRestantes
-                : 21
-        )
-    );
+    const [showPaymentModal, setShowPaymentModal] = useState(false);
+    const [progressStates, setProgressStates] = useState([]);
     const [expanded, setExpanded] = useState(null);
+    const licenssType = userData?.licensed?.licenssType;
+    const credits = userData?.licensed?.credits;
+    const isVip = userData?.licensed?.vip;
+    const isFree = licenssType === 'free';
+    const isBasicOrPremium = licenssType === 'basic' || licenssType === 'premium';
+    const allConcluidos = ideiasVideos.length > 0 && ideiasVideos.every(v => v.state === 'complete');
+    const [regenerateModal, setRegenerateModal] = useState(false);
+    const [regenerateMsg, setRegenerateMsg] = useState('Estamos regerando seu roteiro...');
+
+    const getUserData = async () => {
+        axios.get(`${API_URL}/user/getUserData`, {
+            params: {
+                email: userData?.email,
+                nome: userData?.nome,
+            }
+        }).then((response) => {
+            if (response.data?.user) {
+                setUserData(response.data.user);
+                sessionStorage.setItem('userData', JSON.stringify(response.data.user));
+            } else {
+                console.error('Dados do usuário não encontrados.');
+            }
+        }).catch((error) => {
+            console.error('Erro ao obter dados do usuário:', error);
+        });
+    };
 
     useEffect(() => {
-        setTemposRestantes(
-            ideiasVideos.map((video) =>
-                typeof video.segundosRestantes === 'number'
-                    ? video.segundosRestantes
-                    : 21
+        getUserData();
+    }, []);
+
+
+    useEffect(() => {
+        if (userData?.email) {
+            const evtSource = new EventSource(`${API_URL}/user/user-updates?email=${encodeURIComponent(userData.email)}`);
+            evtSource.onmessage = (event) => {
+                try {
+                    const updatedUser = JSON.parse(event.data);
+                    setUserData(updatedUser);
+                    sessionStorage.setItem('userData', JSON.stringify(updatedUser));
+                } catch (e) { }
+            };
+            return () => evtSource.close();
+        }
+    }, [userData?.email, API_URL, setUserData]);
+
+
+    useEffect(() => {
+        setProgressStates(
+            ideiasVideos.map(video =>
+                video.state === 'complete' ? 100 : 10
             )
         );
     }, [ideiasVideos]);
-
     useEffect(() => {
-        const interval = setInterval(() => {
-            setTemposRestantes((tempos) =>
-                tempos.map((tempo) => (tempo > 0 ? tempo - 1 : 0))
-            );
-        }, 1000);
-        return () => clearInterval(interval);
-    }, [ideiasVideos.length]);
-
-    const allConcluidos = temposRestantes.length > 0 && temposRestantes.every((t) => t === 0);
+        const intervals = [];
+        ideiasVideos.forEach((video, idx) => {
+            if (video.state !== 'complete') {
+                intervals[idx] = setInterval(() => {
+                    setProgressStates(prev => {
+                        const newProgress = [...prev];
+                        if (newProgress[idx] < 95) {
+                            newProgress[idx] += 5;
+                        }
+                        return newProgress;
+                    });
+                }, 600);
+            }
+        });
+        return () => intervals.forEach(i => clearInterval(i));
+    }, [ideiasVideos]);
+    useEffect(() => {
+        setProgressStates(prev =>
+            ideiasVideos.map((video, idx) =>
+                video.state === 'complete' ? 100 : prev[idx] || 10
+            )
+        );
+    }, [ideiasVideos]);
 
     const handleExpand = (idx) => {
         setExpanded(expanded === idx ? null : idx);
@@ -63,22 +116,43 @@ function Roteiros() {
         return [roteiro.slice(0, meio), roteiro.slice(meio)];
     };
 
-    const _refreshRoteiros = () => {
-        axios.get(`${API_URL}/user/getUser`, {
-            params: {
-                nome: userData?.nome,
-                email: userData?.email
-            }
-        })
-            .then((response) => {
-                console.log('User Atualizado:', response.data.user);
-                setUserData(response.data.user);
-            })
-            .catch((error) => {
-                console.error('Erro ao atualizar roteiros:', error);
-            });
-    };
 
+
+    const regenerateRoteiro = async (video) => {
+        setRegenerateMsg('Estamos regerando seu roteiro...');
+        setRegenerateModal(true);
+
+        axios.post(`${API_URL}/video/regenerateRoteiro`, {
+            email: userData?.email,
+            nome: userData?.nome,
+            video: video
+        }).then((response) => {
+            if (response.data.success) {
+                getUserData();
+                setRegenerateModal(false);
+            } else {
+                if (
+                    response.data.message &&
+                    response.data.message.includes('não possui mais créditos')
+                ) {
+                    setRegenerateMsg('Você não possui mais créditos para regerar roteiro de vídeo.');
+                } else {
+                    setRegenerateModal(false);
+                    console.error('Erro ao regerar roteiro:', response.data.message);
+                }
+            }
+        }).catch((error) => {
+            if (
+                error.response?.data?.message &&
+                error.response.data.message.includes('não possui mais créditos')
+            ) {
+                setRegenerateMsg('Você não possui mais créditos para regerar roteiro de vídeo.');
+            } else {
+                setRegenerateModal(false);
+                console.error('Erro ao regerar roteiro:', error);
+            }
+        });
+    };
 
     return (
         <div className="roteiros-bg">
@@ -86,9 +160,53 @@ function Roteiros() {
                 <Row className="w-100 justify-content-center align-items-center">
                     <Col xs={12} md={10} lg={8} xl={6} className="d-flex flex-column align-items-center">
                         <div className="roteiros-header mb-4 text-center">
-                            <span>
-                                <b>Olá, {userData?.nome || 'Usuário'}.</b> Seu vídeo está sendo gerado, aguarde.
-                            </span>
+                            {isVip ? (
+                                <>
+                                    <span>
+                                        <b>Olá, {userData?.nome || 'Usuário'}. Parabéns, você é membro </b>
+                                        <Badge color="warning" style={{ color: '#fff', fontWeight: 'bold', marginLeft: 6, fontSize: '1rem', verticalAlign: 'middle' }}>
+                                            VIP
+                                        </Badge>
+                                        .
+                                    </span>
+                                    <div className="mt-2" style={{ fontSize: '1.1rem' }}>
+                                        Plano: <b style={{ textTransform: 'capitalize' }}>{licenssType}</b>
+                                        <span style={{ marginLeft: 12 }}>
+                                            Créditos restantes: <b>{credits}</b>
+                                        </span>
+                                    </div>
+                                </>
+                            ) : (
+                                <span>
+                                    <b>Olá, {userData?.nome || 'Usuário'}.</b> {allConcluidos ? ("Você já concluiu todos os roteiros disponíveis!") : ("Estamos gerando seu roteiro, por favor aguarde!")}
+                                </span>
+                            )}
+                        </div>
+                        <div className="mb-4 d-flex justify-content-center">
+                            {isFree && credits === 0 ? (
+                                <div className="alert alert-warning text-center w-100" style={{ fontWeight: 'bold', fontSize: '1.1rem', borderRadius: '12px', cursor: 'pointer' }} onClick={() => setPlanModalOpen(true)}
+                                >
+                                    Faça upgrade para gerar novos roteiros
+                                </div>
+                            ) : (isBasicOrPremium && credits === 0 ? (
+                                <div className="alert alert-danger text-center w-100" style={{ fontWeight: 'bold', fontSize: '1.1rem', borderRadius: '12px', cursor: 'pointer' }} onClick={() => setPlanModalOpen(true)}>
+                                    Seu limite foi excedido, volte a gerar em 30 dias.
+                                </div>
+                            ) : (
+                                <Button
+                                    color="primary"
+                                    style={{
+                                        fontWeight: 'bold',
+                                        fontSize: '1.1rem',
+                                        borderRadius: '12px',
+                                        minWidth: '200px',
+                                        boxShadow: '0 2px 8px #2221'
+                                    }}
+                                    onClick={() => setVideoModalOpen(true)}
+                                >
+                                    Criar novo roteiro
+                                </Button>
+                            ))}
                         </div>
                         {ideiasVideos.length === 0 ? (
                             <Card className="roteiros-card w-100 mb-4">
@@ -98,21 +216,19 @@ function Roteiros() {
                             </Card>
                         ) : (
                             ideiasVideos.map((video, idx) => {
-                                const segundosRestantes = temposRestantes[idx] ?? 0;
-                                const progresso = Math.max(0, 100 - segundosRestantes * 4.5);
                                 const data = video.date
                                     ? new Date(video.date).toLocaleDateString('pt-BR')
                                     : new Date().toLocaleDateString('pt-BR');
-                                const concluido = segundosRestantes === 0;
+                                const concluido = video.state === 'complete';
                                 const isExpanded = expanded === idx;
                                 const roteiro = video.roteiro || '';
                                 const [metade1, metade2] = getHalfScript(roteiro);
-                                const isFree = userData?.licensed?.licenssType === 'free';
+                                const progress = progressStates[idx] || (concluido ? 100 : 10);
 
                                 return (
                                     <Card className="roteiros-card w-100 mb-4" key={idx}>
                                         <div className="roteiros-card-header d-flex justify-content-between align-items-center">
-                                            <span>Vídeo {idx + 1}</span>
+                                            <span>Vídeo {idx + 1} - {video.tema}</span>
                                             <span>{data}</span>
                                         </div>
                                         <CardBody className="p-0">
@@ -137,12 +253,13 @@ function Roteiros() {
                                                     <div className="mb-1">
                                                         {concluido
                                                             ? <span style={{ color: '#22bb33', fontWeight: 'bold' }}>Concluído!</span>
-                                                            : <>Ainda faltam {segundosRestantes} segundos.</>
+                                                            : <>Gerando roteiro...</>
                                                         }
                                                     </div>
                                                     <Progress
-                                                        value={concluido ? 100 : progresso}
+                                                        value={progress}
                                                         color={concluido ? "info" : "success"}
+                                                        animated={!concluido}
                                                         style={{ height: '8px', background: '#e0e0e0' }}
                                                     />
                                                 </div>
@@ -165,7 +282,7 @@ function Roteiros() {
                                                     }}
                                                     onClick={() => handleExpand(idx)}
                                                 >
-                                                    VER ROTEIRO{' '}
+                                                    {isExpanded ? 'Fechar roteiro' : 'Ver roteiro'}
                                                     <span role="img" aria-label={concluido ? "destrancado" : "cadeado"}>
                                                         {concluido ? '🔓' : '🔒'}
                                                     </span>
@@ -179,7 +296,11 @@ function Roteiros() {
                                                         </div>
                                                         {isFree ? (
                                                             <div className="roteiro-metade">
-                                                                <span>{metade1}</span>
+                                                                <span>
+                                                                    <ReactMarkdown>
+                                                                        {metade1}
+                                                                    </ReactMarkdown>
+                                                                </span>
                                                                 <span
                                                                     className="roteiro-blur"
                                                                     style={{
@@ -192,7 +313,7 @@ function Roteiros() {
                                                                 >
                                                                     {metade2}
                                                                 </span>
-                                                                <div className="roteiro-upgrade-box mt-3 text-center">
+                                                                <div className="roteiro-upgrade-box mt-3 text-center d-flex justify-content-center gap-2">
                                                                     <Button
                                                                         color="primary"
                                                                         className="roteiro-upgrade-btn"
@@ -207,14 +328,62 @@ function Roteiros() {
                                                                     >
                                                                         Desbloquear roteiro completo
                                                                     </Button>
-                                                                    <div className="roteiro-upgrade-msg mt-2" style={{ fontSize: '0.95rem', color: '#555' }}>
-                                                                        Faça upgrade de plano para acessar o roteiro completo!
-                                                                    </div>
+                                                                    <Button
+                                                                        color="secondary"
+                                                                        className="roteiro-fechar-btn"
+                                                                        style={{
+                                                                            fontWeight: 'bold',
+                                                                            borderRadius: '10px',
+                                                                            fontSize: '1rem',
+                                                                            marginTop: '10px',
+                                                                            padding: '0.7rem 1.5rem'
+                                                                        }}
+                                                                        onClick={() => setExpanded(null)}
+                                                                    >
+                                                                        Fechar roteiro
+                                                                    </Button>
+                                                                </div>
+                                                                <div className="roteiro-upgrade-msg mt-2 w-100 text-center" style={{ fontSize: '0.95rem', color: '#555' }}>
+                                                                    Faça upgrade de plano para acessar o roteiro completo!
                                                                 </div>
                                                             </div>
                                                         ) : (
-                                                            <div className="roteiro-completo">
-                                                                <span>{roteiro}</span>
+                                                            <div className="roteiro-completo markdown-body">
+                                                                <ReactMarkdown>
+                                                                    {roteiro}
+                                                                </ReactMarkdown>
+                                                                {isBasicOrPremium && (
+                                                                    <div className="d-flex justify-content-center mt-3 gap-2">
+                                                                        <Button
+                                                                            color="secondary"
+                                                                            style={{
+                                                                                fontWeight: 'bold',
+                                                                                borderRadius: '10px',
+                                                                                fontSize: '1rem',
+                                                                                padding: '0.6rem 1.4rem'
+                                                                            }}
+                                                                            onClick={() => {
+                                                                                setRegenerateModal(true);
+                                                                                regenerateRoteiro(video);
+                                                                            }}
+                                                                        >
+                                                                            Gerar Novamente
+                                                                        </Button>
+                                                                        <Button
+                                                                            color="light"
+                                                                            style={{
+                                                                                fontWeight: 'bold',
+                                                                                borderRadius: '10px',
+                                                                                fontSize: '1rem',
+                                                                                padding: '0.6rem 1.4rem',
+                                                                                border: '1px solid #ccc'
+                                                                            }}
+                                                                            onClick={() => setExpanded(null)}
+                                                                        >
+                                                                            Fechar roteiro
+                                                                        </Button>
+                                                                    </div>
+                                                                )}
                                                             </div>
                                                         )}
                                                     </div>
@@ -224,25 +393,6 @@ function Roteiros() {
                                     </Card>
                                 );
                             })
-                        )}
-                        {allConcluidos && (
-                            <Button
-                                color="primary"
-                                className="mt-3"
-                                style={{
-                                    fontWeight: 'bold',
-                                    fontSize: '1.1rem',
-                                    borderRadius: '12px',
-                                    minWidth: '170px',
-                                    boxShadow: '0 2px 8px #2221',
-                                    marginBottom: '20px',
-                                }}
-                                onClick={() => {
-                                    setVideoModalOpen(true);
-                                }}
-                            >
-                                Novo roteiro
-                            </Button>
                         )}
                     </Col>
                 </Row>
@@ -264,9 +414,22 @@ function Roteiros() {
                 toggle={() => {
                     setPlanModalOpen(!planModalOpen);
                 }}
-                refreshRoteiros={() => {
-                    _refreshRoteiros();
+            />
+
+            <PaymentConfirmationModal
+                isOpen={showPaymentModal}
+                toggle={() => {
+                    setShowPaymentModal(false);
+                    setPlanModalOpen(false);
                 }}
+                userName={userData?.nome}
+                planType={userData?.licensed?.licenssType}
+            />
+
+            <RegenerateModal
+                isOpen={regenerateModal}
+                onClose={() => setRegenerateModal(false)}
+                message={regenerateMsg}
             />
 
         </div>

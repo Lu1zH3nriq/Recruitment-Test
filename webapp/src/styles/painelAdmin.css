@@ -1,0 +1,11 @@
+.painel-row {
+  border-bottom: 1px solid #bbb;
+  padding: 24px 16px;
+  font-size: 1.15rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.painel-row:last-child {
+  border-bottom: none;
+}

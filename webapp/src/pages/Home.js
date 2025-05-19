@@ -23,7 +23,7 @@ function Home() {
               Venda
             </Button>
 
-            <Button
+            {/* <Button
               className="venda-btn"
               onClick={() => {
                 setVideoModalOpen(true);
@@ -39,7 +39,7 @@ function Home() {
               }}
             >
               Login
-            </Button>
+            </Button> */}
 
           </Col>
         </Row>

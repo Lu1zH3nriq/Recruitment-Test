@@ -13,10 +13,11 @@ import {
 } from 'reactstrap';
 import axios from 'axios';
 import './UserFormModal.css';
+import { useNavigate } from 'react-router-dom';
 
 function UserFormModal({ isOpen, toggle, onSubmit, onContinue }) {
-
-  const { setUserData } = useContext(UserContext);
+  const navigate = useNavigate();
+  const { setUserData, setIsLoggedIn } = useContext(UserContext);
   const APIURL = process.env.API_URL || process.env.REACT_APP_API_URL;
 
   const [form, setForm] = useState({ nome: '', email: '' });
@@ -60,6 +61,7 @@ function UserFormModal({ isOpen, toggle, onSubmit, onContinue }) {
         }
 
         setUserData(response.data.user);
+        setIsLoggedIn(false);
 
       } else {
         setErrorMsg('Erro ao registrar cadastro. Tente novamente!');
@@ -84,6 +86,7 @@ function UserFormModal({ isOpen, toggle, onSubmit, onContinue }) {
   const handleCloseAlreadyExists = () => {
     resetAll();
     toggle();
+    navigate('/login');
   };
 
   const handleToggle = () => {
@@ -119,7 +122,7 @@ function UserFormModal({ isOpen, toggle, onSubmit, onContinue }) {
               className="btn-action-warning"
               onClick={handleCloseAlreadyExists}
             >
-              Sair
+              Ir para Login
             </Button>
           </div>
         ) : errorMsg ? (

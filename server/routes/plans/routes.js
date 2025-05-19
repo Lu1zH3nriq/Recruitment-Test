@@ -7,10 +7,9 @@ const mailgun = new Mailgun(formData);
 const mg = mailgun.client({ username: 'api', key: process.env.MAILGUN_API_KEY });
 
 const { container } = require('../../db_config/db_config.js');
-
+const { clients } = require('../user/sseClients');
 
 router.post("/subscribeToPlan", async (req, res) => {
-
     console.log("Iniciando pagamento...");
 
     const { email, name, planType } = req.body;
@@ -76,13 +75,16 @@ router.post("/subscribeToPlan", async (req, res) => {
         ]
     };
 
+
     res.status(200).json({
-        message: "Pedido realizado com sucesso! Acompanhe seu e-mail e aguarde a confirmação do pagamento.",
+        message: "Pedido realizado com sucesso! Aguarde a confirmação do pagamento. Confira seu email e acompanhe o pedido!",
         payment: {
             payment_token: payload.transaction_token,
             ...payload
         }
     });
+
+
     try {
         const webhookPayload = {
             ...payload,
@@ -98,7 +100,6 @@ router.post("/subscribeToPlan", async (req, res) => {
         console.error("Erro ao iniciar pagamento:", error.message);
     }
 });
-
 
 router.post("/webhook/payment", async (req, res) => {
     try {
@@ -139,6 +140,10 @@ router.post("/webhook/payment", async (req, res) => {
                 await container.item(user.id, user.id).replace(user);
 
 
+
+                delete user.randomPassword;
+                delete user.pass;
+
                 await mg.messages.create(process.env.MAILGUN_DOMAIN || 'resposta20.resultadoleitura.online', {
                     from: "Equipe Gerador de Roteiros <postmaster@resposta20.resultadoleitura.online>",
                     to: [email],
@@ -148,11 +153,16 @@ router.post("/webhook/payment", async (req, res) => {
            <p>Seu pagamento foi aprovado e agora você é membro <b>VIP</b> (${_licenssType.toUpperCase()}).</p>
            <p>Aproveite seus créditos e gere seus roteiros!</p>`
                 });
+
+                if (clients && clients[email]) {
+                    clients[email].write(`data: ${JSON.stringify(user)}\n\n`);
+                }
+
+                return res.status(200).json({ received: true, user: user });
             }
         }
 
-
-        return res.status(200).json({ received: true });
+        return res.status(200).json({ received: true, user: null });
     } catch (error) {
         console.error("Erro no webhook de pagamento:", error.message);
         return res.status(500).json({ message: "Erro ao processar webhook." });

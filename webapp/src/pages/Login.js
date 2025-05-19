@@ -9,7 +9,7 @@ function Login() {
   const navigate = useNavigate();
   const APIURL = process.env.API_URL || process.env.REACT_APP_API_URL;
   const [form, setForm] = useState({ usuario: '', senha: '' });
-  const { setUserData } = useContext(UserContext);
+  const { setUserData, setIsLoggedIn } = useContext(UserContext);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [showErrorModal, setShowErrorModal] = useState(false);
@@ -29,12 +29,18 @@ function Login() {
         email: form.usuario,
         senha: form.senha
       });
-      console.log('Login bem-sucedido:', response.data);
-      const userData = response.data?.user;
-      await setUserData(userData);
-      sessionStorage.setItem('userData', JSON.stringify(userData));
-      navigate('/roteiros');
+      if (response.data?.user) {
+        const userData = response.data.user;
+        await setUserData(userData);
+        await setIsLoggedIn(true);
+        sessionStorage.setItem('userData', JSON.stringify(userData));
+        navigate('/roteiros');
+      } else {
+        setErrorMsg(response.data?.message || 'Usuário ou senha inválidos. Tente novamente.');
+        setShowErrorModal(true);
+      }
     } catch (error) {
+      console.error('Erro ao fazer login:', error);
       setErrorMsg(
         error.response?.data?.message ||
         'Usuário ou senha inválidos. Tente novamente.'

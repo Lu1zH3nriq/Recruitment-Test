@@ -1,12 +1,11 @@
 const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
-
 const formData = require('form-data');
 const Mailgun = require('mailgun.js');
 const mailgun = new Mailgun(formData);
 const mg = mailgun.client({ username: 'api', key: process.env.MAILGUN_API_KEY || 'key-yourkeyhere' });
-
+const { userUpdatesSSE } = require("./sseClients");
 const { container } = require('../../db_config/db_config.js');
 
 router.post("/cadastro", async (req, res) => {
@@ -36,9 +35,7 @@ router.post("/cadastro", async (req, res) => {
                 state: false,
                 credits: 1,
                 licenssType: "free"
-            },
-            token: '',
-            pass: '',
+            }
         };
 
         const { resource } = await container.items.create(userBody);
@@ -108,7 +105,7 @@ router.post("/login", async (req, res) => {
     }
 });
 
-router.get("/getUser", async (req, res) => {
+router.get("/getUserData", async (req, res) => {
     const { nome, email } = req.query;
 
     try {
@@ -125,14 +122,21 @@ router.get("/getUser", async (req, res) => {
             return res.status(404).json({ message: "Usuário não encontrado." });
         }
 
+        const user = resources[0];
+
+        delete user.randomPassword;
+        delete user.pass;
+
         return res.status(200).json({
             message: "Usuário encontrado.",
-            user: resources[0]
+            user: user
         });
     } catch (error) {
         console.error("Erro ao buscar usuário:", error.message);
         return res.status(500).json({ message: "Erro ao buscar usuário." });
     }
 });
+
+router.get('/user-updates', userUpdatesSSE);
 
 module.exports = router;

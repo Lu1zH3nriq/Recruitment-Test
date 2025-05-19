@@ -13,7 +13,7 @@ import './planModal.css';
 import UserContext from '../../context/userContext.js';
 import axios from 'axios';
 
-function PlanModal({ isOpen, toggle, refreshRoteiros }) {
+function PlanModal({ isOpen, toggle }) {
     const APIURL = process.env.API_URL || process.env.REACT_APP_API_URL;
     const { userData } = useContext(UserContext);
     const [feedbackMsg, setFeedbackMsg] = useState('');
@@ -41,7 +41,6 @@ function PlanModal({ isOpen, toggle, refreshRoteiros }) {
             setFeedbackMsg('Erro ao adquirir plano. Tente novamente.');
         } finally {
             setLoadingPlan(null);
-            refreshRoteiros();
         }
     };
 
